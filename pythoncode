@@ -1,0 +1,248 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 29 20:33:16 2023
+
+@author: aarushithejaswi
+"""
+
+import matplotlib.pyplot as plt
+import csv
+FILENAME = "Fruit Prices 2020.csv"
+
+def read_csv(filename):
+    """ Parameter: a string
+        Returns: a 2D list (list of list of strings)
+        Does: stores all the data from the csv file into a list of lists
+    """
+    # empty 2D list
+    data = []
+    with open(filename, "r") as infile:
+        csvfile = csv.reader(infile)
+        # skip header
+        next(csvfile)
+        for line in csvfile:
+            # append each line as a list
+            data.append(line)
+    return data
+   
+def avg_price(data, form_col, price_cup_col, formslst):
+    """ Parameter: a 2D list, int- the column number of the form of fruit, 
+                   int- the column number of the price per cup, a list of 
+                   strings containing forms of fruit we want to have graphed
+        Returns: a list of ints (average prices for each form of fruit in formslst)
+        Does: finds the average price per cup of each form of fruit inputed via
+              the formslst by accumulating a total price for each different form 
+              that appears in the data and tracking the occurances of each form 
+              then dividing, makes a bar graph for each form of fruit in formslst
+    """
+    # empty list, will be each form's average price per cup, length =  4
+    avgs = []
+
+    
+    # make dictionary from formslist
+    # key = lst[form_col] = form, value = accumulated price per cup 
+    k = {}
+    
+    
+    # dictionary for counting occurance of each fruit form in data set
+    # key = lst[form_col] = form, value = count   
+    d = {}
+    
+    for lst in data:
+        k[lst[form_col]] = 0
+        
+    
+    # for each line of strings (list)
+    for lst in data:
+        # cast the price per cup as a float
+        k[lst[form_col]] += float(lst[price_cup_col].strip())
+        
+        
+        if lst[form_col] in d:
+            d[lst[form_col]] += 1
+        else: 
+            d[lst[form_col]] = 1
+         
+        
+    for item in formslst:
+
+        avgs.append(k[item]/d[item])
+
+        
+    # creating bar graph
+    
+    x = [0, 1, 2, 3, 4]
+    
+    plt.xticks(x, formslst)
+    
+    for n in x:
+        
+        plt.bar(n, avgs[n])
+    
+    
+    # title and labels
+    plt.title ("Comparing Average Price per Cup by Fruit Form")
+    plt.xlabel ("Form of Fruit")
+    plt.ylabel ("Average Price per Cup")
+    plt.show()
+                         
+    return avgs
+
+def yield_by_form(filename):
+    """Parameters: a CSV file
+    Returns: nothing
+    Does: displays a bar graph based on average yield rates by fruit form
+    """
+    
+    # total yields for each form
+    fresh_total_yield = 0
+    canned_total_yield = 0
+    juice_total_yield = 0
+    dried_total_yield = 0
+    frozen_total_yield = 0
+    
+    # counts for number of each form in file
+    fresh_count = 0
+    canned_count = 0
+    juice_count = 0
+    dried_count = 0
+    frozen_count = 0
+    
+    # opening file
+    with open (filename, "r") as infile:
+        newlist = []
+        csvfile = csv.reader(infile)
+        
+        # skip column titles
+        next(csvfile)
+        for line in csvfile:
+            # append each line as a list, creating 2d list
+            newlist.append(line)
+            
+        # counting number of each form and total yield rates
+        for i in range(len(newlist)):
+            if (newlist[i][1]) == 'Fresh':
+                fresh_count += 1
+                fresh_total_yield += float(newlist[i][4])
+            elif (newlist[i][1]) == 'Canned':
+                canned_count += 1
+                canned_total_yield += float(newlist[i][4])
+            elif (newlist[i][1]) == 'Juice':
+                juice_count += 1
+                juice_total_yield += float(newlist[i][4])
+            elif (newlist[i][1]) == 'Dried':
+                dried_count += 1
+                dried_total_yield += float(newlist[i][4])
+            elif (newlist[i][1]) == 'Frozen':
+                frozen_count += 1
+                frozen_total_yield += float(newlist[i][4])
+            
+        # exiting for loop
+        # calculating average yield rates from totals and counts
+        avg_fresh = fresh_total_yield / fresh_count
+        avg_canned = canned_total_yield / canned_count
+        avg_juice = juice_total_yield / juice_count
+        avg_dried = dried_total_yield / dried_count
+        avg_frozen = frozen_total_yield / frozen_count
+        
+        # creating bar graph
+        plt.xticks([1, 2, 3, 4, 5], 
+                   ["Fresh", "Canned", "Juice", "Dried", "Frozen"])
+        plt.bar(1, avg_fresh, color = "maroon")
+        plt.bar(2, avg_canned, color = "chocolate")
+        plt.bar(3, avg_juice, color = "goldenrod")
+        plt.bar(4, avg_dried, color = "seagreen")
+        plt.bar(5, avg_frozen, color = "teal")
+        
+        # title and axes labels
+        plt.title ("Average Yield Rates by Fruit Form")
+        plt.xlabel ("Form of Fruit")
+        plt.ylabel ("Average Yield Rate")
+    
+FILENAME = "Fruit Prices 2020.csv"
+import csv
+import matplotlib.pyplot as plt
+
+def scatter(filename):
+    """
+    Parameters: name of file (filename)
+    Returns: nothing
+    Does: displays two scatterplot with densities on x-axis and prices on 
+    y-axis
+    """
+    
+    # opening file
+    with open (filename, "r") as infile:
+        newlist = []
+        csvfile = csv.reader(infile)
+        
+        densities = []
+        prices = []
+        
+        # skip column titles
+        next(csvfile)
+        for line in csvfile:
+            # append each line as a list, creating 2d list
+            newlist.append(line)
+        
+        
+        # adding info from each row to lists
+        for item in newlist:
+            densities.append(float(item[5]))
+            prices.append(float(item[7]))
+        
+        # displaying separate scatterplots for liquids and others (measured in
+        # fluid ounces vs pounds)
+        juice1 = []
+        juice2 = []
+        notjuice1 = []
+        notjuice2 = []
+        
+        # adding items to respective lists
+        for i in range(len(densities)):
+            if newlist[i][1] == "Juice":
+                juice1.append(densities[i])
+                juice2.append(prices[i])
+            else:
+                notjuice1.append(densities[i])
+                notjuice2.append(prices[i])
+        
+        # plotting and creating graph for juices
+        for n in range(len(juice1)):
+            plt.plot(juice1[n], juice2[n], "o", color = "teal")
+        plt.xlabel ("CDensity (in fluid ounces per cup)")
+        plt.ylabel("Cup Equivalent Price")
+        plt.title("Prices by Density for Liquid Fruit Forms")
+        plt.show()
+        
+        # creating 2d list with info about all solid forms
+        notjuicelst = []
+        
+        # plotting and creating graph for solid forms
+        for k in range(len(notjuice1)):
+            notjuicelst.append(newlist[k])
+            # assigning different colors for each form (easier to visualize
+            # potential trends)
+            if notjuicelst[k][1] == "Fresh":
+                plt.plot(notjuice1[k], notjuice2[k], "o", color = "red")
+            elif notjuicelst[k][1] == "Dried":
+                plt.plot(notjuice1[k], notjuice2[k], "o", color = "violet")
+            elif notjuicelst[k][1] == "Frozen":
+                plt.plot(notjuice1[k], notjuice2[k], "o", color = "blue")
+            elif notjuicelst[k][1] == "Canned":
+                plt.plot(notjuice1[k], notjuice2[k], "o", color = "olivedrab")
+        
+        plt.xlabel("Density (in pounds per cup)")
+        plt.ylabel("Cup Equivalent Price")
+        plt.title("Prices by Density for Solid Fruit Forms")
+    
+def main():
+    data = read_csv(FILENAME)
+    print(avg_price(data, 1, 7, ["Fresh", "Dried", "Canned", "Frozen", "Juice"]))
+    
+    yield_by_form(FILENAME)
+    
+    scatter(FILENAME)
+
+main()
